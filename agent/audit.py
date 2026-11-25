@@ -49,7 +49,8 @@ from claude_agent_sdk import (
     {"csv_path": str, "target": str, "candidates": list},
 )
 async def check_identity(args: dict[str, Any]) -> dict[str, Any]:
-    df = pd.read_csv(args["csv_path"])
+    data_path = Path(args["csv_path"])
+    df = pd.read_parquet(data_path) if data_path.suffix == ".parquet" else pd.read_csv(data_path)
     target = df[args["target"]].to_numpy(dtype=float)
     cols = [c for c in args["candidates"] if c in df.columns and c != args["target"]]
 
@@ -98,7 +99,7 @@ Check exactly four things:
   2. Temporal validity: splits by date not at random; every rolling or
      lag feature shifts before it aggregates; no transformer is fit on
      validation or test rows.
-  3. Baseline: a mean or naive-persistence baseline reported next to
+  3. Baseline: both mean and naive-persistence baselines reported next to
      every model score.
   4. Reproducibility: the pipeline runs from a documented command and
      random seeds are fixed.
@@ -158,6 +159,7 @@ async def audit_repo(repo: Path) -> dict[str, Any]:
         # but has no Edit or Write to grant.
         permission_mode="default",
         max_turns=40,
+        setting_sources=["project", "local"],
         model=os.environ.get("AUDIT_MODEL", "bikeshare-coder"),
         output_format={"type": "json_schema", "schema": REPORT_SCHEMA},
     )

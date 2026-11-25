@@ -18,8 +18,9 @@ Run: python -m src.train
 import argparse
 import json
 
+import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.base import BaseEstimator, RegressorMixin, clone
 from sklearn.dummy import DummyRegressor
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.linear_model import Ridge
@@ -63,9 +64,7 @@ def temporal_split(df: pd.DataFrame):
     return train, valid, test
 
 
-def fit_and_score(validation_only: bool = False) -> dict:
-    df = pd.read_parquet(PROCESSED)
-    cols = feature_columns(df)
+def score_feature_set(df, cols, validation_only=False, target_transform="none"):
     train, valid, test = temporal_split(df)
 
     results = {
@@ -78,24 +77,52 @@ def fit_and_score(validation_only: bool = False) -> dict:
     partitions = [("valid", valid)]
     if not validation_only:
         partitions.append(("test", test))
-    for name, model in MODELS.items():
-        model.fit(train[cols], train[TARGET])
+    for name, estimator in MODELS.items():
+        model = clone(estimator)
+        relative = name == "hgb" and target_transform == "log-relative"
+        y_train = train[TARGET]
+        if relative:
+            if (y_train <= 0).any() or (train.cnt_lag_1 <= 0).any():
+                raise ValueError("log-relative targets require positive counts and lags")
+            y_train = np.log(y_train / train.cnt_lag_1)
+        model.fit(train[cols], y_train)
+
+        def predict(part):
+            prediction = model.predict(part[cols])
+            if relative:
+                prediction = part.cnt_lag_1.to_numpy() * np.exp(prediction)
+            return prediction
+
         results[name] = {
             split: {
-                "r2": round(float(r2_score(part[TARGET], model.predict(part[cols]))), 4),
-                "mae": round(float(mean_absolute_error(part[TARGET], model.predict(part[cols]))), 1),
+                "r2": round(float(r2_score(part[TARGET], predict(part))), 4),
+                "mae": round(float(mean_absolute_error(part[TARGET], predict(part))), 1),
             }
             for split, part in partitions
         }
     return results
 
 
+def fit_and_score(validation_only=False, target_transform="none") -> dict:
+    df = pd.read_parquet(PROCESSED)
+    cols = feature_columns(df)
+    results = score_feature_set(df, cols, validation_only, target_transform)
+    if not validation_only and target_transform == "none":
+        before = [col for col in cols if col != "cnt_median_7"]
+        results["before_feature"] = score_feature_set(df, before)
+    return results
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--validation-only", action="store_true")
+    parser.add_argument("--target-transform", choices=["none", "log-relative"], default="none")
     args = parser.parse_args()
-    res = fit_and_score(validation_only=args.validation_only)
+    res = fit_and_score(args.validation_only, args.target_transform)
     output = METRICS.with_name("validation.json") if args.validation_only else METRICS
+    if args.target_transform != "none":
+        suffix = "validation" if args.validation_only else "final"
+        output = METRICS.with_name(f"target-transform-{suffix}.json")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(res, indent=2))
     print(json.dumps({k: v for k, v in res.items() if k != "features"}, indent=2))
