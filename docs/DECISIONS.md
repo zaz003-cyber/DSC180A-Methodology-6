@@ -8,3 +8,9 @@ Agents append here via the `/new-feature` skill; you append here by hand.
 - Exclude `instant`, `yr`, `days_since_2011`: time indexes let a tree predict a flat constant past 2011 and a linear model extrapolate a trend we have no grounds for.
 - Split 2011 / H1 2012 / H2 2012 by date. Test set touched once, after all feature work.
 - Report mean and persistence baselines with every score. Persistence (test R^2 0.510, MAE 840) is within 0.07 R^2 of ridge and beats it on MAE; that caveat goes in the report.
+
+- 2026-11-25: The student selected the median of demand over the seven strictly earlier calendar days. It uses no current-day count and needs no longer warm-up. Compare on validation before deciding whether to retain it.
+- 2026-11-25: Classify every raw column, including raw labels represented by derived features, and reject unknown numeric or categorical columns before feature generation. This closes the denylist gap.
+- 2026-11-25: Keep iterative checks on H1 2012. The original starter quality test read H2 2012 during environment verification, before any new-feature decisions; change it and add validation-only training so later decisions do not use H2 results.
+- 2026-11-25: Add a parameterised seed-fault skill for the three break/check/restore exercises. Normalize Windows paths and use the active Python interpreter in the hook.
+- 2026-11-25: Test one prespecified transformation, log(cnt / cnt_lag_1), inverted with yesterday's count. With the original features, tree validation R^2 rises from 0.2185 to 0.5734, below ridge's 0.6475. Do not tune this on H2 2012.
