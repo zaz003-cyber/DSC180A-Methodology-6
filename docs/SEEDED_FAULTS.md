@@ -34,7 +34,7 @@ FAILED tests/test_leakage.py::test_no_forbidden_features - AssertionError: fo...
 1 failed, 10 passed in 0.59s
 ```
 
-Qwen restored the original expression in one repair edit. The following hook exited with code 0. 21 passed in 1.58s
+Qwen restored the original expression in one repair turn (the next assistant message after the failing hook). The following hook exited with code 0. 21 passed in 1.58s
 
 ## Unshifted rolling mean
 
@@ -58,7 +58,7 @@ FAILED tests/test_leakage.py::test_rolling_mean_excludes_today - assert np.fl...
 1 failed, 10 passed in 0.62s
 ```
 
-Qwen restored the original expression in one repair edit. The following hook exited with code 0. 21 passed in 1.49s
+Qwen restored the original expression in one repair turn (the next assistant message after the failing hook). The following hook exited with code 0. 21 passed in 1.49s
 
 ## Unknown weather category
 
@@ -78,7 +78,7 @@ FAILED tests/test_leakage.py::test_weather_encoder_rejects_unseen_labels - Fa...
 1 failed, 10 passed in 0.67s
 ```
 
-Qwen restored the original expression in one repair edit. The following hook exited with code 0. Full suite verified separately.
+Qwen restored the original expression in one repair turn (the next assistant message after the failing hook). The following hook exited with code 0. 21 passed in 2.39s
 
 ## Raw data replacement
 

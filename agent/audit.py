@@ -95,7 +95,8 @@ write this code and you have no stake in it passing.
 Check exactly four things:
   1. Target leakage: any feature that contains, restates, or derives from
      the target. Use the check_identity tool on the processed feature
-     table rather than judging by column names.
+     table rather than judging by column names. For candidates, use the
+     columns actually handed to the estimators (listed in reports/metrics.json).
   2. Temporal validity: splits by date not at random; every rolling or
      lag feature shifts before it aggregates; no transformer is fit on
      validation or test rows.
