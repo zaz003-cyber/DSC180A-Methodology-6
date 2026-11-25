@@ -20,3 +20,4 @@ Agents append here via the `/new-feature` skill; you append here by hand.
 - 2026-11-25: Reject an altered raw CSV in the data stage using the SHA-256 of the official file. A replacement preserved all test assertions yet moved ridge validation MAE from 815.5 to 892.2.
 - 2026-11-25: The student chose persistence for routine daily dispatch because mean absolute error is the operating cost of interest. On H2 its MAE is 840.1 versus 939.7 for ridge.
 - 2026-11-25: The log-relative target is defensible for one-day-ahead forecasts when yesterday’s count is observed. It improved the tree on validation but did not win mean absolute error on test. Keep untransformed metrics as the default.
+- 2026-11-25: Endorse the peer's feature-retention decision. Ridge improved on identical training dates as well. Distinguish holdout access from evidence that it influenced model selection.

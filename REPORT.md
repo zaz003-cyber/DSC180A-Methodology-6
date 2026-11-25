@@ -41,6 +41,7 @@ Claude Code used local Qwen3 4B through Ollama with a 65,536-token context. A 9B
 
 - Codex wrote the median tests first, added the raw-column classification check, implemented the training comparisons and target transformation, and ran the reproduction checks. Claude Code invoked the feature workflow and wrote the shifted median expression. Its edit introduced an indentation error that the hook caught. Codex corrected the indentation and ran the complete suite.
 - Codex prepared the parameterized fault exercise. Qwen made and repaired the three source edits in Claude Code. Their actual hook outputs are recorded in `docs/SEEDED_FAULTS.md`. Codex measured the effect of a raw-data replacement in a disposable checkout. Qwen repeated the replacement using Bash in a separate fixture, with zero edit-hook events. Codex added the checksum check and prepared the results table and report text. The local Claude Agent SDK audit returned no findings across its four checks (leakage, time ordering, baselines, reproducibility). Its original JSON result is in `reports/audit.jsonl`.
+- For the peer audit, Claude Code returned the verdict quoted in `docs/AUDIT.md`. Codex reproduced the peer's scores and repeated the ridge comparison on identical dates. I reviewed those checks and agreed with the main conclusion.
 
 **Student decisions**
 
