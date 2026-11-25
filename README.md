@@ -6,7 +6,8 @@ Washington, DC, 2011-2012, with a leakage trap in the data.
 
 The agent is Claude Code driving an **open-weight model running on your own
 machine** through Ollama. No Anthropic account, subscription, or API key is
-needed. Nothing leaves your laptop.
+needed for those local sessions. OpenAI Codex also assisted with this
+submission; the division of work is recorded in `REPORT.md`.
 
 ## Setup
 
@@ -22,7 +23,7 @@ needed. Nothing leaves your laptop.
     make model          # pulls the base model, builds `bikeshare-coder` with a 64k context
     make check-model    # confirms Claude Code can reach it and that tool calls work
     make all            # data -> features -> train, writes reports/metrics.json
-    make test           # 14 tests
+    make test           # verification suite
 
     # 4. Start the agent, from the repo root
     claude
@@ -33,11 +34,14 @@ names the model, so `claude` works with no environment variables. Run
 
 ### Which base model
 
-`make model` builds from `qwen3.5:9b` by default. Pick by memory:
+This submission uses `qwen3:4b` with a 64k context to reduce the download
+needed on the available connection. `make model` reproduces that setup.
+Larger alternatives remain available:
 
 | Your machine | Base model | `make model` command |
 |---|---|---|
-| 16 GB RAM (any laptop) | `qwen3.5:9b` (~7 GB) | `make model` |
+| Smaller download | `qwen3:4b` (~2.5 GB) | `make model` |
+| 16 GB RAM | `qwen3.5:9b` (~7 GB) | `make model BASE=qwen3.5:9b` |
 | 32 GB RAM, or 24 GB+ Apple Silicon | `qwen3.5:27b` (~18 GB) | `make model BASE=qwen3.5:27b` |
 | 48 GB+ | `qwen3.5:35b` (~22 GB) | `make model BASE=qwen3.5:35b` |
 | Under 16 GB, or no patience | a hosted model, below | — |

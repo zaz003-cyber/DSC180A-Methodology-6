@@ -1,5 +1,9 @@
 .PHONY: all data features train test clean model check-model
 
+export OMP_NUM_THREADS := 1
+export OPENBLAS_NUM_THREADS := 1
+export MKL_NUM_THREADS := 1
+
 # --- The pipeline ----------------------------------------------------------
 all: data features train
 
@@ -22,7 +26,7 @@ clean:
 # Builds `bikeshare-coder`: the base model plus a 64k context window, which
 # Claude Code needs and Ollama does not give you by default. Pick a larger
 # BASE if your machine has the memory (see README.md).
-BASE ?= qwen3.5:9b
+BASE ?= qwen3:4b
 
 model:
 	ollama pull $(BASE)

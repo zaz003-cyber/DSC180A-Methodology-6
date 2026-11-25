@@ -9,5 +9,5 @@
 #
 # Override the base with `make model BASE=qwen3.5:27b` on a machine with
 # 32 GB or more. See README.md for the size table.
-FROM qwen3.5:9b
+FROM qwen3:4b
 PARAMETER num_ctx 65536
