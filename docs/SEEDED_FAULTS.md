@@ -98,6 +98,14 @@ Validation ridge before {'r2': 0.6645, 'mae': 815.5} after {'r2': 0.6671, 'mae':
 Restored SHA-256 a6bed1577f6e4de56dcfae6d8315985073cc0ad3446c8c99ed60c86a0b5ad9dc
 ```
 
+Claude Code then repeated the replacement with its Bash tool. Its working directory contained a disposable copy of the pipeline in `fault-fixture/`; the active project's raw directory stayed untouched. The session recorded one tool call and zero PostToolUse events. Running the fixture's complete tests and validation confirmed the same result.
+
+```text
+cp fault-fixture/variant.csv fault-fixture/data/raw/bike_daily.csv
+21 passed in 1.90s
+{"r2": 0.6671, "mae": 892.2}
+```
+
 The hook matches Edit and Write in Claude Code. An external file replacement has no matching event. The new data-stage check hashes the bytes before the pipeline can build features. With the same replacement, the data stage stopped and printed the following line. Restoring the checked-in bytes allowed ingestion to run again.
 
 ```text
