@@ -56,3 +56,27 @@ FAILED tests/test_leakage.py::test_no_forbidden_features - AssertionError: fo...
 ```
 
 Qwen restored the original expression in one repair edit. The following hook exited with code 0. 21 passed in 1.58s
+
+## Unshifted rolling mean
+
+```diff
+-out[TARGET].shift(1).rolling(LAG_WARMUP).mean()
++out[TARGET].rolling(LAG_WARMUP).mean()
+```
+
+The PostToolUse hook ran pytest immediately after the edit and exited with code 2. Its stderr included the following lines.
+
+```text
+E           assert np.float64(4389.0) == 4414.857142857143 ± 0.00441486
+E             
+E             comparison failed
+E             Obtained: 4389.0
+E             Expected: 4414.857142857143 ± 0.00441486
+
+tests\test_leakage.py:60: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_leakage.py::test_rolling_mean_excludes_today - assert np.fl...
+1 failed, 10 passed in 0.62s
+```
+
+Qwen restored the original expression in one repair edit. The following hook exited with code 0. 21 passed in 1.49s
