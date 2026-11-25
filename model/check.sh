@@ -26,12 +26,26 @@ fi
 
 # One real request through the Anthropic-compatible endpoint, with a tool,
 # so a broken install fails here and not twenty minutes into Step 2.
-resp=$(curl -fsS "$HOST/v1/messages" \
+if ! resp=$(curl -fsS "$HOST/v1/messages" \
   -H "content-type: application/json" -H "x-api-key: ollama" -H "anthropic-version: 2023-06-01" \
-  -d "{\"model\":\"$MODEL\",\"max_tokens\":64,\"tools\":[{\"name\":\"ping\",\"description\":\"reply tool\",\"input_schema\":{\"type\":\"object\",\"properties\":{}}}],\"messages\":[{\"role\":\"user\",\"content\":\"Call the ping tool.\"}]}" 2>&1)
-if ! printf '%s' "$resp" | grep -q '"tool_use"'; then
-  echo "WARN: the model answered but did not call the tool. Agentic steps may be unreliable." >&2
-  echo "      raw: $(printf '%s' "$resp" | head -c 300)" >&2
+  -d "$(python - "$MODEL" <<'PY'
+import json
+import sys
+print(json.dumps({
+    "model": sys.argv[1], "max_tokens": 2048,
+    "thinking": {"type": "disabled"},
+    "tools": [{"name": "ping", "description": "Reply tool", "input_schema": {"type": "object", "properties": {}}}],
+    "tool_choice": {"type": "tool", "name": "ping"},
+    "messages": [{"role": "user", "content": "Call the ping tool with an empty object."}],
+}))
+PY
+)"); then
+  echo "FAIL: local model request failed" >&2
+  exit 1
+fi
+if ! python -c 'import json, sys; blocks = json.load(sys.stdin).get("content", []); sys.exit(0 if any(b.get("type") == "tool_use" and b.get("name") == "ping" for b in blocks) else 1)' <<< "$resp"; then
+  echo "FAIL: the local model did not call the ping tool" >&2
+  exit 1
 fi
 
 echo "OK model: $MODEL at $HOST, num_ctx=$ctx, tool call works."
