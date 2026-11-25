@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from src.config import FORBIDDEN, TARGET
-from src.features import build_features, feature_columns
+from src.features import build_features, encode_weather, feature_columns
 from src.ingest import load_raw
 
 
@@ -80,3 +80,8 @@ def test_rolling_median_excludes_today_and_future(feats):
     changed = build_features(raw).set_index("dteday")
     original = feats.set_index("dteday")
     assert changed.loc[date, "cnt_median_7"] == original.loc[date, "cnt_median_7"]
+
+
+def test_weather_encoder_rejects_unseen_labels():
+    with pytest.raises(ValueError, match="unmapped weather labels.*UNSEEN"):
+        encode_weather(pd.Series(["GOOD", "UNSEEN"]))

@@ -10,7 +10,7 @@ Run: python -m src.features
 import numpy as np
 import pandas as pd
 
-from src.config import FORBIDDEN, LAG_WARMUP, PROCESSED, TARGET
+from src.config import CLASSIFIED_RAW_COLS, FORBIDDEN, LAG_WARMUP, PROCESSED, TARGET
 from src.ingest import load_raw
 
 WEATHER_ORDER = {"GOOD": 0, "MISTY": 1, "BAD": 2}
@@ -51,6 +51,9 @@ def reindex_to_calendar(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
+    unknown = set(df.columns) - CLASSIFIED_RAW_COLS
+    if unknown:
+        raise ValueError(f"unclassified raw columns: {sorted(unknown)}")
     out = reindex_to_calendar(df.sort_values("dteday").reset_index(drop=True)).copy()
 
     # --- Calendar: known in advance, so it cannot leak -------------------
