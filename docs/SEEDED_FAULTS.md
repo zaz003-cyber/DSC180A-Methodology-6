@@ -79,3 +79,27 @@ FAILED tests/test_leakage.py::test_weather_encoder_rejects_unseen_labels - Fa...
 ```
 
 Qwen restored the original expression in one repair edit. The following hook exited with code 0. Full suite verified separately.
+
+## Raw data replacement
+
+In a disposable checkout, Codex ran the following Bash command directly. It replaced the checkout's raw CSV outside a Claude Code editing session. This demonstrates the external file-change case. The three edits above capture the separate in-session hook behavior.
+
+```bash
+cp ../evidence/altered-counts.csv data/raw/bike_daily.csv
+```
+
+The replacement increased casual and registered counts by 10% (rounded separately) after January 20, 2011, then recalculated their sum. The date used in the hand calculation and its history stayed intact. Row counts, the component identity, and calendar alignment survived. Before the checksum guard, the suite passed even though validation MAE changed.
+
+```text
+Original SHA-256 a6bed1577f6e4de56dcfae6d8315985073cc0ad3446c8c99ed60c86a0b5ad9dc
+Replacement SHA-256 5ed0a8dc733db2f10e93ec5059855658a59b5956a27483fc01ce0e377be7d8c2
+21 passed in 1.58s
+Validation ridge before {'r2': 0.6645, 'mae': 815.5} after {'r2': 0.6671, 'mae': 892.2}
+Restored SHA-256 a6bed1577f6e4de56dcfae6d8315985073cc0ad3446c8c99ed60c86a0b5ad9dc
+```
+
+The hook matches Edit and Write in Claude Code. An external file replacement has no matching event. The new data-stage check hashes the bytes before the pipeline can build features. With the same replacement, the data stage stopped and printed the following line. Restoring the checked-in bytes allowed ingestion to run again.
+
+```text
+raw CSV checksum mismatch: expected a6bed1577f6e4de56dcfae6d8315985073cc0ad3446c8c99ed60c86a0b5ad9dc, found 5ed0a8dc733db2f10e93ec5059855658a59b5956a27483fc01ce0e377be7d8c2
+```

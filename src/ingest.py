@@ -2,6 +2,7 @@
 
 Run: python -m src.ingest
 """
+import hashlib
 import sys
 import urllib.request
 
@@ -10,6 +11,7 @@ import pandas as pd
 from src.config import DATA_URL, RAW
 
 EXPECTED_MIN_ROWS = 700
+EXPECTED_SHA256 = "a6bed1577f6e4de56dcfae6d8315985073cc0ad3446c8c99ed60c86a0b5ad9dc"
 REQUIRED_COLS = {"dteday", "cnt", "casual", "registered", "temp", "hum", "windspeed"}
 
 
@@ -32,5 +34,8 @@ def load_raw() -> pd.DataFrame:
 
 if __name__ == "__main__":
     download(force="--force" in sys.argv)
+    actual = hashlib.sha256(RAW.read_bytes()).hexdigest()
+    if actual != EXPECTED_SHA256:
+        raise SystemExit(f"raw CSV checksum mismatch: expected {EXPECTED_SHA256}, found {actual}")
     df = load_raw()
     print(f"OK ingest: {len(df)} rows, {df.dteday.min().date()} -> {df.dteday.max().date()}")
