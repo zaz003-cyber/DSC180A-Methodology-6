@@ -64,3 +64,19 @@ def test_no_missing_values(feats):
 def test_dates_are_sorted_and_unique(feats):
     assert feats.dteday.is_monotonic_increasing
     assert feats.dteday.is_unique
+
+
+def test_rolling_median_uses_previous_calendar_week(feats):
+    # Jan 13-19 counts: 1406, 1421, 1248, 1204, 1000, 683, 1650.
+    date = pd.Timestamp("2011-01-20")
+    actual = feats.set_index("dteday").loc[date, "cnt_median_7"]
+    assert actual == 1248
+
+
+def test_rolling_median_excludes_today_and_future(feats):
+    date = pd.Timestamp("2011-01-20")
+    raw = load_raw().copy()
+    raw.loc[raw.dteday >= date, TARGET] = 1_000_000
+    changed = build_features(raw).set_index("dteday")
+    original = feats.set_index("dteday")
+    assert changed.loc[date, "cnt_median_7"] == original.loc[date, "cnt_median_7"]
