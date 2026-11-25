@@ -10,7 +10,7 @@
 set -uo pipefail
 
 payload=$(cat)
-path=$(printf '%s' "$payload" | python3 -c \
+path=$(printf '%s' "$payload" | python -c \
   'import json,sys; print(json.load(sys.stdin).get("tool_input",{}).get("file_path",""))')
 
 case "$path" in
