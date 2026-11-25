@@ -14,3 +14,5 @@ Agents append here via the `/new-feature` skill; you append here by hand.
 - 2026-11-25: Keep iterative checks on H1 2012. The original starter quality test read H2 2012 during environment verification, before any new-feature decisions; change it and add validation-only training so later decisions do not use H2 results.
 - 2026-11-25: Add a parameterised seed-fault skill for the three break/check/restore exercises. Normalize Windows paths and use the active Python interpreter in the hook.
 - 2026-11-25: Test one prespecified transformation, log(cnt / cnt_lag_1), inverted with yesterday's count. With the original features, tree validation R^2 rises from 0.2185 to 0.5734, below ridge's 0.6475. Do not tune this on H2 2012.
+
+- 2026-11-25: Retain the selected median feature after an independent validation-only prototype: ridge R^2 0.6475 -> 0.6645 (+0.0170), MAE 832.9 -> 815.5; hgb R^2 0.2185 -> 0.2687 (+0.0502), MAE 1296.6 -> 1256.6. Both gains exceed the starter skill's 0.01 R^2 recommendation; the future test set did not enter this choice. Confirm with the Claude Code implementation.
