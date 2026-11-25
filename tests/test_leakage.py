@@ -4,6 +4,9 @@ test_no_forbidden_features is the single most valuable test in this repo:
 casual + registered == cnt exactly, so any model handed those columns
 scores R^2 = 1.0 and looks brilliant while having learned nothing.
 """
+from itertools import combinations
+
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -85,3 +88,15 @@ def test_rolling_median_excludes_today_and_future(feats):
 def test_weather_encoder_rejects_unseen_labels():
     with pytest.raises(ValueError, match="unmapped weather labels.*UNSEEN"):
         encode_weather(pd.Series(["GOOD", "UNSEEN"]))
+
+
+def test_model_inputs_do_not_exactly_restate_target(feats):
+    cols = feature_columns(feats)
+    target = feats[TARGET].to_numpy(dtype=float)
+    for size in (1, 2):
+        for subset in combinations(cols, size):
+            x = np.column_stack([feats[list(subset)].to_numpy(dtype=float),
+                                 np.ones(len(feats))])
+            coefficients, *_ = np.linalg.lstsq(x, target, rcond=None)
+            residual = np.abs(x @ coefficients - target).max()
+            assert residual > 1e-6, f"target identity in model inputs: {subset}"
